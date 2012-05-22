@@ -1,10 +1,11 @@
 package com.greenmoonsoftware.eightpuzzle;
 
 public class Result {
-  private final int moves;
-  private final int calculations;
+  private int moves;
+  private int calculations;
+  private BoardState finalState;
   
-  public Result(int moves, int calculations) {
+  public Result(int moves, int calculations, BoardState finalState) {
     this.moves = moves;
     this.calculations = calculations;
   }
@@ -15,5 +16,9 @@ public class Result {
   
   public int getMoves() {
     return moves;
+  }
+  
+  public BoardState getFinalState() {
+    return finalState;
   }
 }
