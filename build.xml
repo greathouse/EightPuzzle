@@ -1,0 +1,47 @@
+<project name="EightPuzzle" default="spock" basedir=".">
+
+  <path id="srcpath">
+	<pathelement location="src" />
+	<pathelement location="spock" />
+  </path>
+    
+  <path id="project.classpath">
+    <fileset dir="lib">
+      <include name="*.jar" />
+    </fileset>
+  </path>
+  
+  <taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc" classpathref="project.classpath" />
+  <target name="spock">
+    <property name="tests.build" value="build" />
+    <property name="tests.classes" value="${tests.build}/classes" />
+    <property name="spock.reports" value="${tests.build}/spock-reports" />
+    <delete dir="${tests.build}" />
+    <mkdir dir="${tests.classes}" />
+    <mkdir dir="${spock.reports}" />
+    
+    <groovyc destdir="${tests.classes}">
+        <classpath refid="project.classpath" />
+        <src path="src" />
+        <src path="spock" />
+		<include name="**/*.java" />
+		<include name="**/*.groovy" />
+		<javac source="1.7" target="1.7" debug="on" />
+    </groovyc>
+    
+    <groovyc srcdir="spock" destdir="${tests.classes}" classpathref="project.classpath" />
+    
+    <junit failureproperty="test.failure" >
+      <formatter type="plain"  />
+      <classpath path="${tests.classes}" />
+      <classpath refid="project.classpath" />
+      <batchtest fork="yes" todir="${spock.reports}" >
+        <fileset dir="${tests.classes}">
+          <include name="**/*Tests.class" />
+        </fileset>
+      </batchtest>
+    </junit>
+    
+    <fail message="Tests failed" if="test.failure" />
+  </target>
+</project>
