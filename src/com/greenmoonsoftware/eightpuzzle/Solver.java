@@ -9,6 +9,8 @@ import java.util.PriorityQueue;
 public class Solver {
   private final BoardState initialState;
   private final String solutionState = "123456780";
+  private int movesForSolution = -1;
+  
   private PriorityQueue<BoardState> openStates = new PriorityQueue<BoardState>(1000, new Comparator<BoardState>() {
     @Override
     public int compare(BoardState o1, BoardState o2) {
@@ -46,12 +48,21 @@ public class Solver {
       openStates.addAll(nextStates);
     }
     
-    return new Result(0, calculations, currentState);
+    calculateMoves(currentState);
+    return new Result(movesForSolution, calculations, currentState);
+  }
+  
+  private void calculateMoves(BoardState state) {
+    if (state.getParentState() != null) {
+      movesForSolution++;
+      calculateMoves(state.getParentState());
+    }
   }
   
   public static void main(String[] args) {
-    Result r = new Solver("012345678").solve();
-    System.out.println(r.getFinalState().toString());
+    Result r = new Solver("573681420").solve();
+    System.out.println("Evaluated States: "+r.getCalculations());
+    System.out.println("Moves: "+r.getMoves());
     System.out.println("Done!");
   }
 }

@@ -26,6 +26,10 @@ public class BoardState {
     return state;
   }
   
+  public BoardState getParentState() {
+    return parentState;
+  }
+  
   @Override
   public boolean equals(Object obj) {
     if (obj == null) {
