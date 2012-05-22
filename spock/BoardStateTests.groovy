@@ -24,5 +24,7 @@ class BoardStateTests extends spock.lang.Specification {
       "123450786"|1
       "123456708"|1
       "012345678"|12
+      "573681420"|14
+      "780354612"|18
   }
 }
