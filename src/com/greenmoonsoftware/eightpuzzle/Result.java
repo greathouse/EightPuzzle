@@ -8,6 +8,7 @@ public class Result {
   public Result(int moves, int calculations, BoardState finalState) {
     this.moves = moves;
     this.calculations = calculations;
+    this.finalState = finalState;
   }
   
   public int getCalculations() {

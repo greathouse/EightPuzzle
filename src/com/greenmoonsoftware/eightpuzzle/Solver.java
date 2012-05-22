@@ -1,13 +1,20 @@
 package com.greenmoonsoftware.eightpuzzle;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.PriorityQueue;
 
 
 public class Solver {
   private final BoardState initialState;
   private final String solutionState = "123456780";
-  private List<BoardState> openStates = new ArrayList<BoardState>();
+  private PriorityQueue<BoardState> openStates = new PriorityQueue<BoardState>(1000, new Comparator<BoardState>() {
+    @Override
+    public int compare(BoardState o1, BoardState o2) {
+      return  Integer.valueOf(o1.calculateCost()).compareTo(Integer.valueOf(o2.calculateCost()));
+    }
+  });
   private List<BoardState> closedStates = new ArrayList<BoardState>();
   
   private int calculations = 0;
@@ -19,15 +26,18 @@ public class Solver {
   public Result solve() {
     openStates.add(initialState);
     BoardState currentState = null;
+    boolean foundSolution = false;
     
     while(openStates.size() > 0) {
-      System.out.println(openStates.size());
+//      System.out.println(openStates.size());
       calculations++;
-      currentState = openStates.remove(0);
+      currentState = openStates.poll();
 //      System.out.println(currentState);
       closedStates.add(currentState);
       if (solutionState.equals(currentState.getState())) {
         System.out.println("Found solution");
+        foundSolution = true;
+        break;
       }
       
       List<BoardState> nextStates = currentState.getNextAvailableStates();
@@ -40,7 +50,7 @@ public class Solver {
   }
   
   public static void main(String[] args) {
-    Result r = new Solver("123450786").solve();
+    Result r = new Solver("012345678").solve();
     System.out.println(r.getFinalState().toString());
     System.out.println("Done!");
   }

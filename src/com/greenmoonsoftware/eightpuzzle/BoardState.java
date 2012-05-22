@@ -105,6 +105,9 @@ public class BoardState {
   }
   
   public int calculateCost() {
+    if (cost >= 0) {
+      return cost;
+    }
     int cost = 0;
     for (int x=0; x<3; x++) {
       for (int y=0; y<3; y++) {
@@ -142,10 +145,6 @@ public class BoardState {
           cost += Math.abs(x+1-3);
           cost += Math.abs(y+1-2);
           break;
-//        case '0':
-//          cost += Math.abs(x+1-3);
-//          cost += Math.abs(y+1-3);
-//          break;
         }
       }
     }
