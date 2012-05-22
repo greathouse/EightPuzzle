@@ -1,17 +1,25 @@
 package com.greenmoonsoftware.eightpuzzle;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class BoardState {
   private String state;
+  private char[][] chars;
   private BoardState parentState;
   private List<BoardState> nextStates;
+  private int cost = -1;
   
   public BoardState(String state, BoardState parent) {
     this.state = state;
     this.parentState = parent;
+    char[][] c = {
+        {state.charAt(0), state.charAt(1), state.charAt(2)},
+        {state.charAt(3), state.charAt(4), state.charAt(5)},
+        {state.charAt(6), state.charAt(7), state.charAt(8)}
+    };
+    chars = c;
+    calculateCost();
   }
   
   public String getState() {
@@ -94,5 +102,53 @@ public class BoardState {
     sb.setCharAt(to, state.charAt(from));
     sb.setCharAt(from, '0');
     nextStates.add(new BoardState(sb.toString(), this));
+  }
+  
+  public int calculateCost() {
+    int cost = 0;
+    for (int x=0; x<3; x++) {
+      for (int y=0; y<3; y++) {
+        char c = chars[x][y];
+        switch(c) {
+        case '1': //position 1:1
+          cost += Math.abs(x+1-1); 
+          cost += Math.abs(y+1-1);
+          break;
+        case '2':
+          cost += Math.abs(x+1-1);
+          cost += Math.abs(y+1-2);
+          break;
+        case '3':
+          cost += Math.abs(x+1-1);
+          cost += Math.abs(y+1-3);
+          break;
+        case '4':
+          cost += Math.abs(x+1-2);
+          cost += Math.abs(y+1-1);
+          break;
+        case '5':
+          cost += Math.abs(x+1-2);
+          cost += Math.abs(y+1-2);
+          break;
+        case '6':
+          cost += Math.abs(x+1-2);
+          cost += Math.abs(y+1-3);
+          break;
+        case '7':
+          cost += Math.abs(x+1-3);
+          cost += Math.abs(y+1-1);
+          break;
+        case '8':
+          cost += Math.abs(x+1-3);
+          cost += Math.abs(y+1-2);
+          break;
+//        case '0':
+//          cost += Math.abs(x+1-3);
+//          cost += Math.abs(y+1-3);
+//          break;
+        }
+      }
+    }
+    return cost;
   }
 }

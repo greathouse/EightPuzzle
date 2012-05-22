@@ -40,7 +40,7 @@ public class Solver {
   }
   
   public static void main(String[] args) {
-    Result r = new Solver("012345678").solve();
+    Result r = new Solver("123450786").solve();
     System.out.println(r.getFinalState().toString());
     System.out.println("Done!");
   }
