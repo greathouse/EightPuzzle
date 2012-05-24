@@ -5,7 +5,7 @@ import java.util.Set;
 
 public class BoardState {
   private String state;
-  private Spot[][] chars;
+  private Spot[][] spots;
   private BoardState parentState;
   private Set<BoardState> nextStates;
   private int cost = -1;
@@ -34,7 +34,7 @@ public class BoardState {
         spotCounter++;
       }
     }
-    chars = c;
+    spots = c;
     calculateCost();
   }
   
@@ -68,7 +68,7 @@ public class BoardState {
     StringBuilder sb = new StringBuilder();
     for (int x=0; x<ApplicationState.instance.getDimensionX(); x++) {
       for (int y=0; y<ApplicationState.instance.getDimensionY(); y++) {
-        sb.append(String.format("%3s",chars[x][y].getCharacter())).append(" ");
+        sb.append(String.format("%3s",spots[x][y].getCharacter())).append(" ");
       }
       sb.append("\n");
     }
@@ -117,7 +117,7 @@ public class BoardState {
     Spot[][] copy = new Spot[ApplicationState.instance.getDimensionX()][ApplicationState.instance.getDimensionY()];
     for (int x=0; x<ApplicationState.instance.getDimensionX(); x++) {
       for (int y=0; y<ApplicationState.instance.getDimensionY(); y++) {
-        copy[x][y] = chars[x][y];
+        copy[x][y] = spots[x][y];
       }
     }
     return copy;
@@ -125,19 +125,12 @@ public class BoardState {
   
   private BoardState moveOpenSpot(int fromX, int fromY, int toX, int toY) {
     Spot[][] copy = copySpots();
-    Spot openSpot = chars[fromX][fromY];
+    Spot openSpot = spots[fromX][fromY];
     copy[toX][toY] = openSpot.newMove(toX, toY);
     
-    Spot replaceSpot = chars[toX][toY];
+    Spot replaceSpot = spots[toX][toY];
     copy[fromX][fromY] = replaceSpot.newMove(fromX, fromY);
     return new BoardState(encode(copy), this);
-  }
-  
-  private void addState(int from, int to) {
-    StringBuilder sb = new StringBuilder(state);
-    sb.setCharAt(to, state.charAt(from));
-    sb.setCharAt(from, '0');
-    nextStates.add(new BoardState(sb.toString(), this));
   }
   
   public int calculateCost() {
@@ -148,7 +141,7 @@ public class BoardState {
     int cost = 0;
     for (int x=0; x<appState.getDimensionX(); x++) {
       for (int y=0; y<appState.getDimensionY(); y++) {
-        cost += chars[x][y].calculateCost();
+        cost += spots[x][y].calculateCost();
       }
     }
     cost += getParentCost();
