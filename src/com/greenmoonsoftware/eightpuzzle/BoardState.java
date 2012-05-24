@@ -151,7 +151,15 @@ public class BoardState {
         cost += chars[x][y].calculateCost();
       }
     }
+    cost += getParentCost();
     return cost;
+  }
+  
+  private int getParentCost() {
+    if (parentState != null) {
+      return parentState.calculateCost();
+    }
+    return 0;
   }
   
   public static void main(String[] args) {
