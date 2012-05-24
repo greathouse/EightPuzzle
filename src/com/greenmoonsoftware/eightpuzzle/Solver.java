@@ -23,7 +23,7 @@ public class Solver {
   private int calculations = 0;
   
   public Solver(int dimX, int dimY, String initialState, String solutionState) {
-    ApplicationState.instance.initialize(3,3,solutionState);
+    ApplicationState.instance.initialize(dimX,dimY,solutionState);
     this.initialState = new BoardState(initialState, null);
   }
   
