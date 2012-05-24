@@ -1,13 +1,13 @@
 package com.greenmoonsoftware.eightpuzzle;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 public class BoardState {
   private String state;
   private char[][] chars;
   private BoardState parentState;
-  private List<BoardState> nextStates;
+  private Set<BoardState> nextStates;
   private int cost = -1;
   
   public BoardState(String state, BoardState parent) {
@@ -44,7 +44,7 @@ public class BoardState {
   
   @Override
   public int hashCode() {
-    return state.hashCode();
+    return 683 * state.hashCode();
   }
 
   @Override
@@ -56,11 +56,11 @@ public class BoardState {
       .toString();
   }
   
-  public List<BoardState> getNextAvailableStates() {
+  public Set<BoardState> getNextAvailableStates() {
     if (nextStates != null) {
       return nextStates;
     }
-    nextStates = new ArrayList<BoardState>();
+    nextStates = new HashSet<BoardState>();
     int blankIndex = state.indexOf('0');
     switch(blankIndex) {
     case 0:
@@ -71,32 +71,40 @@ public class BoardState {
       addState(0,blankIndex);
       addState(2,blankIndex);
       addState(4,blankIndex);
+      break;
     case 2:
       addState(1,blankIndex);
       addState(5,blankIndex);
+      break;
     case 3:
       addState(0,blankIndex);
       addState(4,blankIndex);
       addState(6,blankIndex);
+      break;
     case 4:
       addState(1,blankIndex);
       addState(3,blankIndex);
       addState(5,blankIndex);
       addState(7,blankIndex);
+      break;
     case 5:
       addState(2,blankIndex);
       addState(4,blankIndex);
       addState(8,blankIndex);
+      break;
     case 6:
       addState(3,blankIndex);
       addState(7,blankIndex);
+      break;
     case 7:
       addState(6,blankIndex);
       addState(4,blankIndex);
       addState(8,blankIndex);
+      break;
     case 8:
       addState(5,blankIndex);
       addState(7,blankIndex);
+      break;
     }
     return nextStates;
   }

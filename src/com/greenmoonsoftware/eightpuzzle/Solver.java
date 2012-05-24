@@ -2,14 +2,16 @@ package com.greenmoonsoftware.eightpuzzle;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 
 public class Solver {
   private final BoardState initialState;
   private final String solutionState = "123456780";
-  private int movesForSolution = -1;
+  private int movesForSolution = 0;
   
   private PriorityQueue<BoardState> openStates = new PriorityQueue<BoardState>(1000, new Comparator<BoardState>() {
     @Override
@@ -17,7 +19,7 @@ public class Solver {
       return  Integer.valueOf(o1.calculateCost()).compareTo(Integer.valueOf(o2.calculateCost()));
     }
   });
-  private List<BoardState> closedStates = new ArrayList<BoardState>();
+  private Set<BoardState> closedStates = new HashSet<BoardState>();
   
   private int calculations = 0;
   
@@ -31,10 +33,8 @@ public class Solver {
     boolean foundSolution = false;
     
     while(openStates.size() > 0) {
-//      System.out.println(openStates.size());
       calculations++;
       currentState = openStates.poll();
-//      System.out.println(currentState);
       closedStates.add(currentState);
       if (solutionState.equals(currentState.getState())) {
         System.out.println("Found solution");
@@ -42,14 +42,13 @@ public class Solver {
         break;
       }
       
-      List<BoardState> nextStates = currentState.getNextAvailableStates();
+      Set<BoardState> nextStates = currentState.getNextAvailableStates();
       nextStates.removeAll(closedStates);
-//      System.out.println("Adding "+nextStates.size()+" states to be evaluated...");
       openStates.addAll(nextStates);
     }
     
     calculateMoves(currentState);
-    return new Result(movesForSolution, calculations, currentState);
+    return new Result(movesForSolution, calculations, currentState, foundSolution);
   }
   
   private void calculateMoves(BoardState state) {
@@ -60,9 +59,24 @@ public class Solver {
   }
   
   public static void main(String[] args) {
-    Result r = new Solver("573681420").solve();
+    Result r = new Solver("012345678").solve();
+    if (!r.isFoundSolution()) {
+      System.out.println("No solution!");
+      return;
+    }
     System.out.println("Evaluated States: "+r.getCalculations());
     System.out.println("Moves: "+r.getMoves());
+    List<BoardState> boardStates = new ArrayList<BoardState>();
+    
+    BoardState s = r.getFinalState();
+    while (s != null) {
+      boardStates.add(0,s);
+      s = s.getParentState();
+    }
+    for (BoardState state : boardStates) {
+      System.out.println("-------------------");
+      System.out.println(state.toString());
+    }
     System.out.println("Done!");
   }
 }
