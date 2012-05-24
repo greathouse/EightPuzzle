@@ -12,8 +12,10 @@ class BoardStateTests extends spock.lang.Specification {
       cost == 0
   }
   
+  @Unroll
   def "simple test"() {
     setup:
+      ApplicationState.instance.initialize(3, 3, "1 2 3 4 5 6 7 8 0")
       def boardState = new BoardState(i, null)
     when:
       def cost = boardState.calculateCost()

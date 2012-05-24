@@ -5,19 +5,35 @@ import java.util.Set;
 
 public class BoardState {
   private String state;
-  private char[][] chars;
+  private Spot[][] chars;
   private BoardState parentState;
   private Set<BoardState> nextStates;
   private int cost = -1;
+  private int openSpotX;
+  private int openSpotY;
   
   public BoardState(String state, BoardState parent) {
+    String[] stateValues = state.split(" ");
     this.state = state;
     this.parentState = parent;
-    char[][] c = {
-        {state.charAt(0), state.charAt(1), state.charAt(2)},
-        {state.charAt(3), state.charAt(4), state.charAt(5)},
-        {state.charAt(6), state.charAt(7), state.charAt(8)}
-    };
+    
+    ApplicationState appState = ApplicationState.instance;
+    int dimX = appState.getDimensionX();
+    int dimY = appState.getDimensionY();
+    
+    Spot[][] c = new Spot[dimX][dimY];
+    int spotCounter = 0;
+    for (int x=0; x<dimX; x++) {
+      for (int y=0; y<dimY; y++) {
+        String value = stateValues[spotCounter];
+        c[x][y] = new Spot(value, x, y, appState.getXForValue(value), appState.getYForValue(value));
+        if (value.equals("0")) {
+          openSpotX = x;
+          openSpotY = y;
+        }
+        spotCounter++;
+      }
+    }
     chars = c;
     calculateCost();
   }
@@ -50,63 +66,71 @@ public class BoardState {
   @Override
   public String toString() {
     StringBuilder sb = new StringBuilder();
-    return sb.append(state.substring(0, 3)).append("\n")
-      .append(state.substring(3,6)).append("\n")
-      .append(state.substring(6))
-      .toString();
+    for (int x=0; x<ApplicationState.instance.getDimensionX(); x++) {
+      for (int y=0; y<ApplicationState.instance.getDimensionY(); y++) {
+        sb.append(String.format("%3s",chars[x][y].getCharacter())).append(" ");
+      }
+      sb.append("\n");
+    }
+    return sb.toString();
   }
   
   public Set<BoardState> getNextAvailableStates() {
     if (nextStates != null) {
       return nextStates;
     }
+    ApplicationState appState = ApplicationState.instance;
     nextStates = new HashSet<BoardState>();
-    int blankIndex = state.indexOf('0');
-    switch(blankIndex) {
-    case 0:
-      addState(1, blankIndex);
-      addState(3, blankIndex);
-      break;
-    case 1:
-      addState(0,blankIndex);
-      addState(2,blankIndex);
-      addState(4,blankIndex);
-      break;
-    case 2:
-      addState(1,blankIndex);
-      addState(5,blankIndex);
-      break;
-    case 3:
-      addState(0,blankIndex);
-      addState(4,blankIndex);
-      addState(6,blankIndex);
-      break;
-    case 4:
-      addState(1,blankIndex);
-      addState(3,blankIndex);
-      addState(5,blankIndex);
-      addState(7,blankIndex);
-      break;
-    case 5:
-      addState(2,blankIndex);
-      addState(4,blankIndex);
-      addState(8,blankIndex);
-      break;
-    case 6:
-      addState(3,blankIndex);
-      addState(7,blankIndex);
-      break;
-    case 7:
-      addState(6,blankIndex);
-      addState(4,blankIndex);
-      addState(8,blankIndex);
-      break;
-    case 8:
-      addState(5,blankIndex);
-      addState(7,blankIndex);
-      break;
+    int top = openSpotX - 1;
+    int bottom = openSpotX + 1;
+    int left = openSpotY - 1;
+    int right = openSpotY + 1;
+    
+    if (bottom < appState.getDimensionX()) {
+      nextStates.add(moveOpenSpot(openSpotX, openSpotY, bottom, openSpotY));
     }
+    if (right < appState.getDimensionY()) {
+      nextStates.add(moveOpenSpot(openSpotX, openSpotY, openSpotX, right));
+    }
+    if (left >= 0) {
+      nextStates.add(moveOpenSpot(openSpotX, openSpotY, openSpotX, left));
+    }
+    if (top >= 0) {
+      nextStates.add(moveOpenSpot(openSpotX, openSpotY, top, openSpotY));
+    }
+    
     return nextStates;
+  }
+  
+  private String encode(Spot[][] spots) {
+    StringBuilder sb = new StringBuilder();
+    for (Spot[] x : spots) {
+      for (Spot y : x) {
+        sb.append(y.getCharacter()).append(" ");
+      }
+    }
+    return sb.toString().trim();
+  }
+  
+  private Spot[][] copySpots() {
+    //TODO: Maybe look at using System.arraycopy for micro-optimazation
+    Spot[][] copy = new Spot[ApplicationState.instance.getDimensionX()][ApplicationState.instance.getDimensionY()];
+    for (int x=0; x<ApplicationState.instance.getDimensionX(); x++) {
+      for (int y=0; y<ApplicationState.instance.getDimensionY(); y++) {
+        copy[x][y] = chars[x][y];
+      }
+    }
+    return copy;
+  }
+  
+  private BoardState moveOpenSpot(int fromX, int fromY, int toX, int toY) {
+    Spot[][] copy = copySpots();
+    Spot openSpot = chars[fromX][fromY];
+    copy[toX][toY] = openSpot.newMove(toX, toY);
+    
+    Spot replaceSpot = chars[toX][toY];
+    copy[fromX][fromY] = replaceSpot.newMove(fromX, fromY);
+    return new BoardState(encode(copy), this);
   }
   
   private void addState(int from, int to) {
@@ -120,46 +144,18 @@ public class BoardState {
     if (cost >= 0) {
       return cost;
     }
+    ApplicationState appState = ApplicationState.instance;
     int cost = 0;
-    for (int x=0; x<3; x++) {
-      for (int y=0; y<3; y++) {
-        char c = chars[x][y];
-        switch(c) {
-        case '1': //position 1:1
-          cost += Math.abs(x+1-1); 
-          cost += Math.abs(y+1-1);
-          break;
-        case '2':
-          cost += Math.abs(x+1-1);
-          cost += Math.abs(y+1-2);
-          break;
-        case '3':
-          cost += Math.abs(x+1-1);
-          cost += Math.abs(y+1-3);
-          break;
-        case '4':
-          cost += Math.abs(x+1-2);
-          cost += Math.abs(y+1-1);
-          break;
-        case '5':
-          cost += Math.abs(x+1-2);
-          cost += Math.abs(y+1-2);
-          break;
-        case '6':
-          cost += Math.abs(x+1-2);
-          cost += Math.abs(y+1-3);
-          break;
-        case '7':
-          cost += Math.abs(x+1-3);
-          cost += Math.abs(y+1-1);
-          break;
-        case '8':
-          cost += Math.abs(x+1-3);
-          cost += Math.abs(y+1-2);
-          break;
-        }
+    for (int x=0; x<appState.getDimensionX(); x++) {
+      for (int y=0; y<appState.getDimensionY(); y++) {
+        cost += chars[x][y].calculateCost();
       }
     }
     return cost;
+  }
+  
+  public static void main(String[] args) {
+    ApplicationState.instance.initialize(3,3,"1 2 3 4 5 6 7 8 0");
+    System.out.println(new BoardState("1 2 3 4 5 0 7 8 6", null).calculateCost());
   }
 }

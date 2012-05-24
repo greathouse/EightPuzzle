@@ -10,7 +10,6 @@ import java.util.Set;
 
 public class Solver {
   private final BoardState initialState;
-  private final String solutionState = "123456780";
   private int movesForSolution = 0;
   
   private PriorityQueue<BoardState> openStates = new PriorityQueue<BoardState>(1000, new Comparator<BoardState>() {
@@ -23,7 +22,8 @@ public class Solver {
   
   private int calculations = 0;
   
-  public Solver(String initialState) {
+  public Solver(int dimX, int dimY, String initialState, String solutionState) {
+    ApplicationState.instance.initialize(3,3,solutionState);
     this.initialState = new BoardState(initialState, null);
   }
   
@@ -36,7 +36,7 @@ public class Solver {
       calculations++;
       currentState = openStates.poll();
       closedStates.add(currentState);
-      if (solutionState.equals(currentState.getState())) {
+      if (ApplicationState.instance.getSolutionState().equals(currentState.getState())) {
         System.out.println("Found solution");
         foundSolution = true;
         break;
@@ -59,7 +59,7 @@ public class Solver {
   }
   
   public static void main(String[] args) {
-    Result r = new Solver("012345678").solve();
+    Result r = new Solver(3,3,"0 1 2 3 4 5 6 7 8", "1 2 3 4 5 6 7 8 0").solve();
     if (!r.isFoundSolution()) {
       System.out.println("No solution!");
       return;
