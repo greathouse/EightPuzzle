@@ -1,7 +1,6 @@
 package com.greenmoonsoftware.eightpuzzle.BoardStateTests;
 
 
-import com.greenmoonsoftware.eightpuzzle.ApplicationState;
 import com.greenmoonsoftware.eightpuzzle.BoardState;
 
 public class CalculateCostTests extends TestBase {
